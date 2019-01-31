@@ -5,7 +5,68 @@ date: "1/30/2019"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, message=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(kableExtra)
+library(knitr)
+
+population <- read_csv("assig1_data.csv")
+```
+
+### Question 1 Calculate $\frac{dN}{Ndt}$ 
+
+####a. Describe how annual population  are used to calculate $\frac{dN}{Ndt}$   
+
+$\frac{dN}{Ndt}$ is the per capita rate of change of the population. Annual population data can be used to calculate the per capita rate of change (r) by taking the natural log of the number of individuals in the population at time t and divide by the number of individuals in the population at time t+1, multiplying it by $\frac{1}{(t+1)-t}$. In this case, the per capita rate of change would be the natural log of the number of individuals in the population in 1964 divided by the number of individuals in the population in 1963. For the difference from 1964 to 1963, the final term $\frac{1}{(t+1)-t}$ would be 1 and is not necessary to include in the equation. 
+
+####b. Equations for calculating $\frac{dN}{Ndt}$  
+
+* Brazil - $r = ln\left(\frac{81972001}{79602001}\right)$  
+
+* India -  $r = ln\left(\frac{486639001}{476632001}\right)$   
+
+* Japan -  $r = ln\left(\frac{96959001}{95929001}\right)$ 
+
+* Mexico - $r = ln\left(\frac{43052001}{41715001}\right)$  
+
+* South Korea - $r = ln\left(\frac{27767001}{27138001}\right)$    
+
+```{r percap_ratechange, include=FALSE}
+
+rates <- population %>% 
+  filter(year %in% c(1963,1964)) %>% 
+  select(country, year, population) %>% 
+  spread(year, population) %>% 
+  magrittr::set_colnames(value = c("country", "n0", "nt")) %>% 
+  mutate(dNNdt_calc = log(nt/n0),
+         dNNdt = c(0.029338507, 0.020777870, 0.010679874, 0.031547910, 0.022913305))
+
+
+```
+  
+  
+  
+    
+```{r table1, echo=FALSE}
+
+rate_table  <- rates %>%
+  select(country, dNNdt_calc, dNNdt)
+
+knitr::kable(rate_table, digits = 4, col.names = c("Country",  "Calculated dNNdt", "Actual dNNdt"))
+
+```
+  
+  
+   
+####c. Calcuate $\frac{dN}{Ndt}$ for Mexico for all years 1963-2004
+
+```{r mexico, echo=FALSE}
+
+mexico <- population %>% 
+  filter(country == "Mexico") %>% 
+  select(country, year, population, dNNdt) 
+
 ```
 
