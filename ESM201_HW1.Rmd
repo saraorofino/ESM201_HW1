@@ -45,8 +45,7 @@ rates <- population %>%
 
 
 ```
-  
-  
+
   
     
 ```{r table1, echo=FALSE}
