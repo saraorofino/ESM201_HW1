@@ -2,7 +2,9 @@
 title: "ESM 201 HW 1"
 author: "Sara Orofino"
 date: "1/30/2019"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE, message=FALSE}
@@ -53,7 +55,9 @@ rates <- population %>%
 rate_table  <- rates %>%
   select(country, dNNdt_calc, dNNdt)
 
-knitr::kable(rate_table, digits = 4, col.names = c("Country",  "Calculated dNNdt", "Actual dNNdt"))
+kable(rate_table, digits = 4, col.names = c("Country",  "Calculated dNNdt", "Actual dNNdt"),
+      caption = "Table 1. Calculated vs. Actual Per Capita Rate of Change by Country") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "bordered")) 
 
 ```
   
@@ -63,9 +67,7 @@ knitr::kable(rate_table, digits = 4, col.names = c("Country",  "Calculated dNNdt
 
 ```{r mexico, echo=FALSE}
 
-mexico <- population %>% 
-  filter(country == "Mexico") %>% 
-  select(country, year, population, dNNdt) 
+
 
 ```
 
