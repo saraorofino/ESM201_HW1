@@ -65,9 +65,16 @@ kable(rate_table, digits = 4, col.names = c("Country",  "Calculated dNNdt", "Act
    
 ####c. Calcuate $\frac{dN}{Ndt}$ for Mexico for all years 1963-2004
 
-```{r mexico, echo=FALSE}
+```{r mexico, echo=FALSE, message=FALSE, warning=FALSE}
 
+mexico <- read_csv("mexico_data.csv") %>% 
+  ggplot(aes(x = dNNdt_calc, y = dNNdt)) +
+  geom_point() +
+  geom_smooth(method="lm", se=FALSE, size = 0.5, color = "midnightblue") +
+  labs(x = expression(paste("Calculated Per Capita Rate of Change (dNNdt)")), 
+       y = "Actual Per Capita Rate of Change (dNNdt)") +
+  theme_classic()
 
-
+mexico
 ```
 
