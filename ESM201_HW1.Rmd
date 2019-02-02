@@ -3,8 +3,8 @@ title: "ESM 201 HW 1"
 author: "Sara Orofino"
 date: "1/30/2019"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE, message=FALSE}
@@ -13,11 +13,22 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(kableExtra)
 library(knitr)
+library(stargazer)
+library(tinytex)
+library(captioner)
 
 population <- read_csv("assig1_data.csv")
 ```
 
-### Question 1 Calculate $\frac{dN}{Ndt}$ 
+```{r fig_caps}
+# set up for figure captions:
+fig_nums <- captioner()
+fig_nums("mex_percap", "Mexico's Actual vs. Calculated Per Capita Rate of Change (dN/Ndt). The graph depicts the actual vs. calculated per capita rate of change with a one-to-one trendline for Mexico from 1963 to 2003.")
+fig_nums("all_percap", "Per Capita for All")
+```
+
+
+###Question 1 Calculate $\frac{dN}{Ndt}$ 
 
 ####a. Describe how annual population  are used to calculate $\frac{dN}{Ndt}$   
 
@@ -71,11 +82,178 @@ mexico <- read_csv("mexico_data.csv") %>%
   ggplot(aes(x = dNNdt_calc, y = dNNdt)) +
   geom_point() +
   geom_smooth(method="lm", se=FALSE, size = 0.5, color = "midnightblue") +
-  labs(x = "Caclculated Per Capita Rate of Change (dNNdt)", 
-       y = "Actual Per Capita Rate of Change (dNNdt)") +
-  theme_classic()
+  labs(x = "Calculated Per Capita Rate of Change (dN/Ndt)", 
+       y = "Actual Per Capita Rate of Change (dN/Ndt)") +
+  scale_x_continuous(limits = c(0.010, 0.0325), breaks = seq(0.010,0.030, by=0.005),
+                     expand = c(0,0)) +
+  scale_y_continuous(limits = c(0.010,0.0325),breaks =  seq(0.010,0.030, by=0.005),
+                     expand  = c(0,0)) +
+  theme_light()
 
 mexico
 ```
+`r fig_nums("mex_percap")`    
 
-### Question 1 Calculate $\frac{dN}{Ndt}$ 
+
+###Question 2 Graph $\frac{dN}{Ndt}$ vs. N~t~
+
+####a. For Each Country Plot $\frac{dN}{Ndt}$ vs. N~t~
+
+```{r pop_graphs, echo=FALSE}
+
+ggplot(population, aes(x = population, y = dNNdt)) +
+  geom_line() +
+  facet_wrap(~country, scales = "free") +
+  labs(x = "Population Size (N)",
+       y = "Per Capita Rate of Change (dN/Ndt)") + 
+  theme_light() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  
+  
+```
+
+
+####b. Estimating Carrying Capacity 
+
+```{r k, include=FALSE, message=FALSE, warning=FALSE}
+# estimate carrying capacity for South Korea and Brazil 
+
+# South Korea:
+
+skorea_carry <- population %>% 
+  filter(country == "South Korea") %>% 
+  lm(population ~ dNNdt, data = .)
+
+summary(skorea_carry)
+# Equation: Population = 5.282x10^7 - 1.054x10^9(dNNdt)
+# dNNdt = 0 at k --> K = 5.282x10^7
+
+# Brazil:
+brazil_carry <- population %>% 
+  filter(country == "Brazil") %>% 
+  lm(population ~ dNNdt, data = .)
+
+summary(brazil_carry)
+# Equation: Population = 2.607x10^8 - 6.392x10^9(dNNdt)
+# dNNdt = 0 at k --> K = 2.607x10^8
+
+```
+
+  
+**Carrying Capacities:**
+  
+- **Brazil:**   
+$Population = 2.607*10^8 - 6.392*10^9(\frac{dN}{Ndt})$        
+Carrying capacity (K) = population when $\frac{dN}{Ndt} = 0$   
+$K = 2.607*10^8$  
+  
+- **South Korea:**   
+$Population = 5.282*10^7 - 1.054*10^9(\frac{dN}{Ndt})$  
+Carrying capacity (K) = population when $\frac{dN}{Ndt} = 0$   
+K = $5.282*10^7$ 
+  
+####c. Modified Plots 
+
+```{r plot_modify, echo=FALSE, message=FALSE, warning=FALSE}
+
+ggplot(population, aes(x = population, y = dNNdt)) +
+  geom_point(aes(color=year, size=calories_pd), alpha = 0.8) +
+  facet_wrap(~country, scales = "free") +
+  labs(x = "Population Size (N)",
+       y = "Per Capita Rate of Change (dN/Ndt)",
+       size = "Food Calories (Person/Day)") +
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "bottom",
+        legend.box = "vertical") + 
+  scale_color_distiller(palette = "GnBu", direction = 1, 
+                        name = "Year") 
+
+```
+
+###Question 3 What Influences Growth  
+  
+
+####a. Combined Multiple Linear Regression   
+     
+
+```{r combined_regression, include=FALSE}
+
+combined_model <- lm(dNNdt ~ country + years_ed + calories_pd, data=population)
+
+# Reference country Brazil; years and calories both significant p < 0.001 
+```
+
+```{r stargazer_combined, results='asis', echo=FALSE}
+
+combined_table <- stargazer(combined_model, 
+                            title = "Table 2. Combined Regression Results",
+                            align = TRUE,
+                            dep.var.labels = c("Per Capita Rate of Change (dN/Ndt)"),
+                            covariate.labels = c("India", "Japan", "Mexico", "South Korea",
+                                                 "Years of Education", 
+                                                 "Food Calories Per Person Per Day"),
+                            no.space = TRUE,
+                            digits=2,
+                            type = "html",
+                            header=FALSE)
+
+```
+  
+*Description of Variables:*
+
+* 
+
+  
+####b. Multiple Linear Regression by Country   
+  
+
+```{r single_regression, include=FALSE}
+########## Single Country Regressions 
+
+#Brazil:  
+
+brazil_model <- population %>% 
+  filter(country == "Brazil") %>% 
+  lm(dNNdt ~ years_ed + calories_pd, data = .)
+
+
+# India:
+india_model <- population %>% 
+  filter(country == "India") %>% 
+  lm(dNNdt ~ years_ed + calories_pd, data = .)
+
+
+# Japan:
+japan_model <- population %>% 
+  filter(country == "Japan") %>% 
+  lm(dNNdt ~ years_ed + calories_pd, data = .)
+
+# Mexico: 
+mexico_model <- population %>% 
+  filter(country == "Mexico") %>% 
+  lm(dNNdt ~ years_ed + calories_pd, data = .)
+
+# South Korea:
+skorea_model <- population %>% 
+  filter(country == "South Korea") %>% 
+  lm(dNNdt ~ years_ed + calories_pd, data = .)
+```
+
+```{r stargazer_countries, echo=FALSE, results= 'asis'}
+
+lm_table <- stargazer(brazil_model, india_model, japan_model, mexico_model, skorea_model,
+                      title = "Table 3. Regression Results by Country",
+                      align = TRUE,
+                      dep.var.labels = c("Per Capita Rate of Change (dN/Ndt)"),
+                      column.labels = c("Brazil", "India", "Japan", "Mexico", "South Korea"),
+                      covariate.labels = c("Years of Education", 
+                                           "Food Calories Per Person Per Day"),
+                      no.space = TRUE,
+                      digits=2,
+                      type = "html",
+                      header = FALSE)
+```
+
+
+
+
