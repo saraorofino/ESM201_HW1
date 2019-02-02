@@ -1,0 +1,129 @@
+---
+title: "Question3"
+author: "Sara Orofino"
+date: "2/2/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(stargazer)
+library(tinytex)
+
+population <- read_csv("assig1_data.csv")
+```
+
+###Question 3 What Influences Growth  
+  
+
+####a. Combined Multiple Linear Regression   
+     
+
+```{r combined_regression, include=FALSE}
+
+combined_model <- lm(dNNdt ~ country + years_ed + calories_pd, data=population)
+
+# Reference country Brazil; years and calories both significant p < 0.001 
+```
+
+```{r stargazer_combined, results='asis', echo=FALSE}
+
+combined_table <- stargazer(combined_model, 
+                            title = "Table 2. Combined Regression Results. Reference level country is Brazil. Values in parenthesis indicate standard deviation.",
+                            align = TRUE,
+                            dep.var.labels = c("Per Capita Rate of Change (dN/Ndt)"),
+                            covariate.labels = c("India", "Japan", "Mexico", "South Korea",
+                                                 "Years of Education", 
+                                                 "Food Calories Per Person Per Day"),
+                            no.space = TRUE,
+                            digits=4,
+                            type = "text",
+                            header=FALSE)
+
+```
+  
+  
+  
+*Description of Variables:*
+
+- Countries:  
+  + India - If everything else in the model remained the same, we would expect India to have an average rate of change for the population that is 0.0074 percent slower than the rate of change for the population in Brazil.    
+  + Japan: If everything else in the model remained the same, we would expect Japan to have an average rate of change for the population that is 0.0014 percent slower than the rate of change for the population in Brazil.    
+  + Mexico: If everything else in the model remained the same, we would expect Mexico to have an average rate of change for the population that is 0.0044 percent faster than the rate of change for the population in Brazil.   
+  + South Korea: If everything else in the model remained the same, we would expect South Korea to have an average rate of change for the population that is 0.0026 percent faster than the rate of change for the population in Brazil.   
+  
+- Years of Education: For every increase in one year of education, we would expect the rate of change of the population to decrease by 0.0027 percent, if all other factors in the model remain equal.    
+
+- Food Calories: For every additional calorie consumed per person per day, we would expect the rate of change of the population to decrease by 0.000001 percent, all other factors remaining equal.
+
+  
+####b. Multiple Linear Regression by Country   
+  
+
+```{r single_regression, include=FALSE}
+########## Single Country Regressions 
+
+#Brazil:  
+
+brazil_model <- population %>% 
+  filter(country == "Brazil") %>% 
+  lm(dNNdt ~ years_ed + calories_pd, data = .)
+
+
+# India:
+india_model <- population %>% 
+  filter(country == "India") %>% 
+  lm(dNNdt ~ years_ed + calories_pd, data = .)
+
+
+# Japan:
+japan_model <- population %>% 
+  filter(country == "Japan") %>% 
+  lm(dNNdt ~ years_ed + calories_pd, data = .)
+
+# Mexico: 
+mexico_model <- population %>% 
+  filter(country == "Mexico") %>% 
+  lm(dNNdt ~ years_ed + calories_pd, data = .)
+
+# South Korea:
+skorea_model <- population %>% 
+  filter(country == "South Korea") %>% 
+  lm(dNNdt ~ years_ed + calories_pd, data = .)
+```
+
+```{r stargazer_countries, echo=FALSE, results= 'asis'}
+
+lm_table <- stargazer(brazil_model, india_model, japan_model, mexico_model, skorea_model,
+                      title = "Table 3. Regression Results by Country",
+                      align = TRUE,
+                      dep.var.labels = c("Per Capita Rate of Change (dN/Ndt)"),
+                      column.labels = c("Brazil", "India", "Japan", "Mexico", "South Korea"),
+                      covariate.labels = c("Years of Education", 
+                                           "Food Calories Per Person Per Day"),
+                      no.space = TRUE,
+                      digits=5,
+                      type = "text",
+                      header = FALSE)
+```
+
+*Description of Variables* 
+
+* Years of Education:
+    + Brazil: For every increase in one year of education, we would expect the rate of change of the for the population to decrease by 0.0024 percent if all other variables in the model remain the same.   
+    + India: For every increase in one year of education, we would expect the rate of change of the for the population to decrease by 0.0015 percent if all other variables in the model remain the same.   
+    + Japan:For every increase in one year of education, we would expect the rate of change of the for the population to decrease by 0.0038 percent if all other variables in the model remain the same.   
+    + Mexico: For every increase in one year of education, we would expect the rate of change of the for the population to decrease by 0.0023 percent if all other variables in the model remain the same.
+    + South Korea: For every increase in one year of education, we would expect the rate of change of the for the population to decrease by 0.0028 percent if all other variables in the model remain the same.   
+    
+* Food Calories: 
+  + Brazil: For every additional calorie consumed per person per day, we would expect the rate of change of the population to decrease by 0.000001 percent, all other factors remaining equal.  
+  + India: For every additional calorie consumed per person per day, we would expect the rate of change of the population to decrease by 0.0000004 percent, all other factors remaining equal. 
+  + Japan: For every additional calorie consumed per person per day, we would expect the rate of change of the population to decrease by 0.000002 percent, all other factors remaining equal.  
+  + Mexico: For every additional calorie consumed per person per day, we would expect the rate of change of the population to decrease by 0.000001 percent, all other factors remaining equal.  
+  + South Korea: For every additional calorie consumed per person per day, we would expect the rate of change of the population to decrease by 0.0000004 percent, all other factors remaining equal.  
+
+
+
