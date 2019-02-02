@@ -184,6 +184,7 @@ ggplot(pop, aes(x = pop_mil, y = dNNdt)) +
                         name = "Year") 
 
 ```
+  
 `r fig_nums("all_color")`  
 
   
