@@ -2,9 +2,8 @@
 title: "ESM 201 HW 1"
 author: "Sara Orofino"
 date: "1/30/2019"
-output:
-  html_document: default
-  pdf_document: default
+output: pdf_document
+
 ---
 
 ```{r setup, include=FALSE, message=FALSE}
@@ -18,13 +17,21 @@ library(tinytex)
 library(captioner)
 
 population <- read_csv("assig1_data.csv")
+
+pop <- population %>% 
+  mutate(pop_mil = population/1000000)
 ```
 
-```{r fig_caps}
+```{r fig_caps, include=FALSE}
 # set up for figure captions:
 fig_nums <- captioner()
-fig_nums("mex_percap", "Mexico's Actual vs. Calculated Per Capita Rate of Change (dN/Ndt). The graph depicts the actual vs. calculated per capita rate of change with a one-to-one trendline for Mexico from 1963 to 2003.")
-fig_nums("all_percap", "Per Capita for All")
+
+fig_nums("mex_percap", "Mexico's Actual vs. Calculated Per Capita Rate of Change. The graph depicts the actual vs. calculated per capita rate of change for Mexico's population between 1963 and 2003. The trendline shows the linear relationship between actual and calculate values for the per capita rate of population change.")
+
+fig_nums("all_percap", "Rate of Population Change by Country. The per capita rate of change of the population is shown against the population size in millions of people for each of the five countries.")
+
+fig_nums("all_color", "Rate of Population Growth by Country Over Time. The per capita rate of change of the population is shown against the population size in millions of people for each of the five countries. The color of the lines represents the progression through time and size of the points depicts the food calories per person per day.")
+
 ```
 
 
@@ -48,10 +55,10 @@ $\frac{dN}{Ndt}$ is the per capita rate of change of the population. Annual popu
 
 ```{r percap_ratechange, include=FALSE}
 
-rates <- population %>% 
+rates <- pop %>% 
   filter(year %in% c(1963,1964)) %>% 
-  select(country, year, population) %>% 
-  spread(year, population) %>% 
+  select(country, year, pop_mil) %>% 
+  spread(year, pop_mil) %>% 
   magrittr::set_colnames(value = c("country", "n0", "nt")) %>% 
   mutate(dNNdt_calc = log(nt/n0),
          dNNdt = c(0.029338507, 0.020777870, 0.010679874, 0.031547910, 0.022913305))
@@ -67,7 +74,7 @@ rate_table  <- rates %>%
   select(country, dNNdt_calc, dNNdt)
 
 kable(rate_table, digits = 4, col.names = c("Country",  "Calculated dNNdt", "Actual dNNdt"),
-      caption = "Table 1. Calculated vs. Actual Per Capita Rate of Change by Country") %>% 
+      caption = "Table 1. Calculated vs. Actual Per Capita Rate of Population Change by Country") %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "bordered")) 
 
 ```
@@ -79,11 +86,13 @@ kable(rate_table, digits = 4, col.names = c("Country",  "Calculated dNNdt", "Act
 ```{r mexico, echo=FALSE, message=FALSE, warning=FALSE}
 
 mexico <- read_csv("mexico_data.csv") %>% 
+  mutate(pop_mil = population/1000000) %>% 
+  select(country, year, pop_mil, dNNdt, dNNdt_calc) %>% 
   ggplot(aes(x = dNNdt_calc, y = dNNdt)) +
   geom_point() +
   geom_smooth(method="lm", se=FALSE, size = 0.5, color = "midnightblue") +
-  labs(x = "Calculated Per Capita Rate of Change (dN/Ndt)", 
-       y = "Actual Per Capita Rate of Change (dN/Ndt)") +
+  labs(x = "Calculated Per Capita Rate of Change", 
+       y = "Actual Per Capita Rate of Change") +
   scale_x_continuous(limits = c(0.010, 0.0325), breaks = seq(0.010,0.030, by=0.005),
                      expand = c(0,0)) +
   scale_y_continuous(limits = c(0.010,0.0325),breaks =  seq(0.010,0.030, by=0.005),
@@ -101,15 +110,16 @@ mexico
 
 ```{r pop_graphs, echo=FALSE}
 
-ggplot(population, aes(x = population, y = dNNdt)) +
+ggplot(pop, aes(x = pop_mil, y = dNNdt)) +
   geom_line() +
   facet_wrap(~country, scales = "free") +
-  labs(x = "Population Size (N)",
-       y = "Per Capita Rate of Change (dN/Ndt)") + 
+  labs(x = "Population Size (Millions of People)",
+       y = "Per Capita Rate of Change") + 
   theme_light() + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1))  
   
 ```
+`r fig_nums("all_percap")`   
 
 
 ####b. Estimating Carrying Capacity 
@@ -155,12 +165,12 @@ K = $5.282*10^7$
 
 ```{r plot_modify, echo=FALSE, message=FALSE, warning=FALSE}
 
-ggplot(population, aes(x = population, y = dNNdt)) +
+ggplot(pop, aes(x = pop_mil, y = dNNdt)) +
   geom_point(aes(color=year, size=calories_pd), alpha = 0.8) +
   facet_wrap(~country, scales = "free") +
-  labs(x = "Population Size (N)",
-       y = "Per Capita Rate of Change (dN/Ndt)",
-       size = "Food Calories (Person/Day)") +
+  labs(x = "Population Size (Millions of People)",
+       y = "Per Capita Rate of Change",
+       size = "Food Calories (Per Person Per Day)") +
   theme_bw() + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         legend.position = "bottom",
@@ -169,7 +179,9 @@ ggplot(population, aes(x = population, y = dNNdt)) +
                         name = "Year") 
 
 ```
+`r fig_nums("all_color")`  
 
+  
 ###Question 3 What Influences Growth  
   
 
@@ -186,22 +198,32 @@ combined_model <- lm(dNNdt ~ country + years_ed + calories_pd, data=population)
 ```{r stargazer_combined, results='asis', echo=FALSE}
 
 combined_table <- stargazer(combined_model, 
-                            title = "Table 2. Combined Regression Results",
+                            title = "Table 2. Combined Regression Results. Reference level country is Brazil. Values in parenthesis indicate standard deviation.",
                             align = TRUE,
                             dep.var.labels = c("Per Capita Rate of Change (dN/Ndt)"),
                             covariate.labels = c("India", "Japan", "Mexico", "South Korea",
                                                  "Years of Education", 
                                                  "Food Calories Per Person Per Day"),
                             no.space = TRUE,
-                            digits=2,
-                            type = "html",
+                            digits=4,
+                            type = "text",
                             header=FALSE)
 
 ```
   
+  
+  
 *Description of Variables:*
 
-* 
+- Countries:  
+  + India - If everything else in the model remained the same, we would expect India to have an average rate of change for the population that is 0.0074 percent slower than the rate of change for the population in Brazil.    
+  + Japan: If everything else in the model remained the same, we would expect Japan to have an average rate of change for the population that is 0.0014 percent slower than the rate of change for the population in Brazil.    
+  + Mexico: If everything else in the model remained the same, we would expect Mexico to have an average rate of change for the population that is 0.0044 percent faster than the rate of change for the population in Brazil.   
+  + South Korea: If everything else in the model remained the same, we would expect South Korea to have an average rate of change for the population that is 0.0026 percent faster than the rate of change for the population in Brazil.   
+  
+- Years of Education: For every increase in one year of education, we would expect the rate of change of the population to decrease by 0.0027 percent, if all other factors in the model remain equal.    
+
+- Food Calories: For every additional calorie consumed per person per day, we would expect the rate of change of the population to decrease by 0.000001 percent, all other factors remaining equal.
 
   
 ####b. Multiple Linear Regression by Country   
@@ -249,11 +271,26 @@ lm_table <- stargazer(brazil_model, india_model, japan_model, mexico_model, skor
                       covariate.labels = c("Years of Education", 
                                            "Food Calories Per Person Per Day"),
                       no.space = TRUE,
-                      digits=2,
-                      type = "html",
+                      digits=5,
+                      type = "text",
                       header = FALSE)
 ```
 
+*Description of Variables* 
+
+* Years of Education:
+    + Brazil: For every increase in one year of education, we would expect the rate of change of the for the population to decrease by 0.0024 percent if all other variables in the model remain the same.   
+    + India: For every increase in one year of education, we would expect the rate of change of the for the population to decrease by 0.0015 percent if all other variables in the model remain the same.   
+    + Japan:For every increase in one year of education, we would expect the rate of change of the for the population to decrease by 0.0038 percent if all other variables in the model remain the same.   
+    + Mexico: For every increase in one year of education, we would expect the rate of change of the for the population to decrease by 0.0023 percent if all other variables in the model remain the same.
+    + South Korea: For every increase in one year of education, we would expect the rate of change of the for the population to decrease by 0.0028 percent if all other variables in the model remain the same.   
+    
+* Food Calories: 
+  + Brazil: For every additional calorie consumed per person per day, we would expect the rate of change of the population to decrease by 0.000001 percent, all other factors remaining equal.  
+  + India: For every additional calorie consumed per person per day, we would expect the rate of change of the population to decrease by 0.0000004 percent, all other factors remaining equal. 
+  + Japan: For every additional calorie consumed per person per day, we would expect the rate of change of the population to decrease by 0.000002 percent, all other factors remaining equal.  
+  + Mexico: For every additional calorie consumed per person per day, we would expect the rate of change of the population to decrease by 0.000001 percent, all other factors remaining equal.  
+  + South Korea: For every additional calorie consumed per person per day, we would expect the rate of change of the population to decrease by 0.0000004 percent, all other factors remaining equal.  
 
 
 
