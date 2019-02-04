@@ -3,8 +3,8 @@ title: "ESM 201 HW 1"
 author: "Sara Orofino"
 date: "1/30/2019"
 output:
-  word_document: default
   pdf_document: default
+  word_document: default
   always_allow_html: yes
 ---
 
@@ -17,6 +17,7 @@ library(knitr)
 library(stargazer)
 library(tinytex)
 library(captioner)
+library(latex2exp)
 
 population <- read_csv("assig1_data.csv")
 
@@ -189,4 +190,110 @@ ggplot(pop, aes(x = pop_mil, y = dNNdt)) +
   
 `r fig_nums("all_color")`  
 
+###Question 3 What Influences Growth    
   
+     
+```{r, include=FALSE}
+# Packages for question 3
+
+library(tidyverse)
+library(stargazer)
+library(tinytex)
+
+```
+
+#### Multiple Linear Regression  
+
+```{r combined_regression, include=FALSE}
+
+combined_model <- lm(dNNdt ~ years_ed + calories_pd, data=population)
+
+# Years is significant p < 0.001 and calories is not  p = 0.549
+```
+
+
+```{r single_regression, include=FALSE}
+########## Single Country Regressions 
+
+#Brazil:  
+
+brazil_model <- population %>% 
+  filter(country == "Brazil") %>% 
+  lm(dNNdt ~ years_ed + calories_pd, data = .)
+
+
+# India:
+india_model <- population %>% 
+  filter(country == "India") %>% 
+  lm(dNNdt ~ years_ed + calories_pd, data = .)
+
+
+# Japan:
+japan_model <- population %>% 
+  filter(country == "Japan") %>% 
+  lm(dNNdt ~ years_ed + calories_pd, data = .)
+
+# Mexico: 
+mexico_model <- population %>% 
+  filter(country == "Mexico") %>% 
+  lm(dNNdt ~ years_ed + calories_pd, data = .)
+
+# South Korea:
+skorea_model <- population %>% 
+  filter(country == "South Korea") %>% 
+  lm(dNNdt ~ years_ed + calories_pd, data = .)
+```
+
+
+
+```{r stargazer_country, include = FALSE}
+
+table <- stargazer(combined_model, brazil_model, india_model, japan_model, mexico_model, skorea_model,
+                      title = "Regression Results.",
+                      type = "latex",
+                      dep.var.labels = c("Per Capita Rate of Change (dN/Ndt)"),
+                      column.labels = c("All", "Brazil", "India", "Japan", "Mexico", "South Korea"),
+                      covariate.labels = c("Years of Education", 
+                                           "Food Calories Per Person Per Day"),
+                      digits=7,
+                      header = FALSE)
+
+```
+
+
+
+
+```{r stargazer_results, results = 'asis', echo = FALSE, message = FALSE}
+# formatting for final table 
+
+
+table <- gsub("\\begin{tabular}","\\resizebox{1.0\\textwidth}{!}{\\begin{tabular}", table,fixed=T)
+table <- gsub("\\end{tabular}","\\end{tabular}}", table,fixed=T)
+cat(table)
+
+```
+
+\pagebreak
+
+
+*Description of Variables*  
+</p>
+
+* Years of Education:
+    + All:  For every increase in one year of education, we would expect the rat of change for the population to decrease by 0.0022489 if all other variables in the model remain the same.   
+    + Brazil: For every increase in one year of education, we would expect the rate of change of the for the population to decrease by 0.0024205 if all other variables in the model remain the same.  
+    + India: For every increase in one year of education, we would expect the rate of change of the for the population to decrease by 0.0015234 if all other variables in the model remain the same.   
+    + Japan:For every increase in one year of education, we would expect the rate of change of the for the population to decrease by 0.0038341 if all other variables in the model remain the same.   
+    + Mexico: For every increase in one year of education, we would expect the rate of change of the for the population to decrease by 0.0022801 if all other variables in the model remain the same.  
+    + South Korea: For every increase in one year of education, we would expect the rate of change of the for the population to decrease by 0.0027568 if all other variables in the model remain the same.   
+    
+</p>  
+  
+* Food Calories: 
+    + All: For every additional calorie consumed per person per day, we would expect the rate of change of the population to decrease by 0.0000001, all other factors remaining equal.   
+    + Brazil: For every additional calorie consumed per person per day, we would expect the rate of change of the population to decrease by 0.0000012, all other factors remaining equal.  
+    + India: For every additional calorie consumed per person per day, we would expect the rate of change of the population to decrease by 0.0000004, all other factors remaining equal.   
+    + Japan: For every additional calorie consumed per person per day, we would expect the rate of change of the population to decrease by 0.0000020, all other factors remaining equal.  
+    + Mexico: For every additional calorie consumed per person per day, we would expect the rate of change of the population to decrease by 0.0000053, all other factors remaining equal.  
+    + South Korea: For every additional calorie consumed per person per day, we would expect the rate of change of the population to decrease by 0.0000004, all other factors remaining equal.  
+
