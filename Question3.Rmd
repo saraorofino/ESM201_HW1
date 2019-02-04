@@ -1,5 +1,7 @@
 ---
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -20,28 +22,12 @@ population <- read_csv("assig1_data.csv")
 
 ```{r combined_regression, include=FALSE}
 
-combined_model <- lm(dNNdt ~ country + years_ed + calories_pd, data=population)
+combined_model <- lm(dNNdt ~ years_ed + calories_pd, data=population)
 
-# Reference country Brazil; years and calories both significant p < 0.001 
+# Years is significant p < 0.001 and calories is not  p = 0.549
 ```
 
-```{r stargazer_combined, results='asis', echo=FALSE}
 
-combined_table <- stargazer(combined_model, 
-                            title = "Table 2. Combined Regression Results. Reference level country is Brazil. Values in parenthesis indicate standard deviation.Per Capita Rate of Change expressed as a percentage of population growth.",
-                            align = TRUE,
-                            dep.var.labels = c("Per Capita Rate of Change (dN/Ndt)"),
-                            covariate.labels = c("India", "Japan", "Mexico", "South Korea",
-                                                 "Years of Education", 
-                                                 "Food Calories Per Person Per Day"),
-                            no.space = TRUE,
-                            digits=4,
-                            type = "html",
-                            header=FALSE)
-
-```
-    
-    
 </p>
 *Description of Variables:*  
   
@@ -92,22 +78,31 @@ skorea_model <- population %>%
   lm(dNNdt ~ years_ed + calories_pd, data = .)
 ```
 
-```{r stargazer_countries, echo=FALSE, results= 'asis'}
+```{r stargazer_country, include = FALSE}
 
-lm_table <- stargazer(brazil_model, india_model, japan_model, mexico_model, skorea_model,
-                      title = "Table 3. Regression Results by Country. Values in parenthesis indicate standard deviation. Per Capita Rate of Change expressed as a percentage of population growth.",
-                      align = TRUE,
+table <- stargazer(combined_model, brazil_model, india_model, japan_model, mexico_model, skorea_model,
+                      title = "Table 2. Regression Results.",
+                      type = "latex",
                       dep.var.labels = c("Per Capita Rate of Change (dN/Ndt)"),
-                      column.labels = c("Brazil", "India", "Japan", "Mexico", "South Korea"),
+                      column.labels = c("All", "Brazil", "India", "Japan", "Mexico", "South Korea"),
                       covariate.labels = c("Years of Education", 
                                            "Food Calories Per Person Per Day"),
-                      no.space = TRUE,
-                      digits=5,
-                      type = "html",
+                      digits=7,
                       header = FALSE)
+
 ```
    
-     
+```{r stargazer1, results = 'asis', echo = FALSE, message = FALSE}
+# formatting for final table 
+
+
+table <- gsub("\\begin{tabular}","\\resizebox{1.0\\textwidth}{!}{\\begin{tabular}", table,fixed=T)
+table <- gsub("\\end{tabular}","\\end{tabular}}", table,fixed=T)
+cat(table)
+
+```
+
+   
 </p>
 *Description of Variables*  
 </p>
