@@ -104,6 +104,7 @@ mexico <- read_csv("mexico_data.csv") %>%
 
 mexico
 ```
+  
 `r fig_nums("mex_percap")`    
 
 \pagebreak
@@ -124,6 +125,7 @@ ggplot(pop, aes(x = pop_mil, y = dNNdt)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))  
   
 ```
+  
 `r fig_nums("all_percap")`   
 
 
@@ -157,14 +159,14 @@ summary(brazil_carry)
 **Carrying Capacities:**
   
 - **Brazil:**   
-$Population = 2.607*10^8 - 6.392*10^9(\frac{dN}{Ndt})$        
+$Population = 2.607*10^8 - 6.392*10^9(\frac{dN}{Ndt})$  
 Carrying capacity (K) = population when $\frac{dN}{Ndt} = 0$   
-$K = 2.607*10^8$  
+$K = 2.607*10^8 individuals$
   
 - **South Korea:**   
-$Population = 5.282*10^7 - 1.054*10^9(\frac{dN}{Ndt})$  
-Carrying capacity (K) = population when $\frac{dN}{Ndt} = 0$   
-K = $5.282*10^7$ 
+$Population = 5.282*10^7 - 1.054*10^9(\frac{dN}{Ndt})$
+Carrying capacity (K) = population when $\frac{dN}{Ndt} = 0$  
+K = $5.282*10^7 individuals$ 
 
 \pagebreak
   
