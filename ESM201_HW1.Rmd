@@ -1,11 +1,10 @@
 ---
 title: "ESM 201 HW 1"
 author: "Sara Orofino"
-date: "1/30/2019"
+date: "2/5/2019"
 output:
   pdf_document: default
-  word_document: default
-  always_allow_html: yes
+mainfont: Times
 ---
 
 ```{r setup, include=FALSE, message=FALSE}
@@ -76,7 +75,7 @@ rates <- pop %>%
 rate_table  <- rates %>%
   select(country, dNNdt_calc, dNNdt)
 
-kable(rate_table, digits = 4, col.names = c("Country",  "Calculated dNNdt", "Actual dNNdt"),
+kable(rate_table, digits = 4, col.names = c("Country", "Calculated dNNdt", "Actual dNNdt"),
       caption = "Calculated vs. Actual Per Capita Rate of Population Change by Country") %>% 
   kable_styling(bootstrap_options = c("striped", "hover", "bordered")) 
 
@@ -100,7 +99,8 @@ mexico <- read_csv("mexico_data.csv") %>%
                      expand = c(0,0)) +
   scale_y_continuous(limits = c(0.010,0.0325),breaks =  seq(0.010,0.030, by=0.005),
                      expand  = c(0,0)) +
-  theme_light()
+  theme_light() + 
+  theme(text = element_text(family = "Times"))
 
 mexico
 ```
@@ -108,7 +108,6 @@ mexico
 `r fig_nums("mex_percap")`    
 
 \pagebreak
-
 
 ###Question 2 Graph $\frac{dN}{Ndt}$ vs. N~t~
 
@@ -122,7 +121,8 @@ ggplot(pop, aes(x = pop_mil, y = dNNdt)) +
   labs(x = "Population Size (Millions of People)",
        y = "Per Capita Rate of Change") + 
   theme_light() + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))  
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        text = element_text(family = "Times"))  
   
 ```
   
@@ -161,12 +161,12 @@ summary(brazil_carry)
 - **Brazil:**   
 $Population = 2.607*10^8 - 6.392*10^9(\frac{dN}{Ndt})$  
 Carrying capacity (K) = population when $\frac{dN}{Ndt} = 0$   
-$K = 2.607*10^8 individuals$
+K = 260.7 million individuals
   
 - **South Korea:**   
-$Population = 5.282*10^7 - 1.054*10^9(\frac{dN}{Ndt})$
+$Population = 5.282*10^7 - 1.054*10^9(\frac{dN}{Ndt})$  
 Carrying capacity (K) = population when $\frac{dN}{Ndt} = 0$  
-K = $5.282*10^7 individuals$ 
+K = 52.8 million individuals 
 
 \pagebreak
   
@@ -184,7 +184,9 @@ ggplot(pop, aes(x = pop_mil, y = dNNdt)) +
   theme_bw() + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         legend.position = "bottom",
-        legend.box = "vertical") + 
+        legend.box = "vertical",
+        legend.text = element_text(family = "Times"),
+        text = element_text(family = "Times")) + 
   scale_color_distiller(palette = "GnBu", direction = 1, 
                         name = "Year") 
 
@@ -282,20 +284,20 @@ cat(table)
 </p>
 
 * Years of Education:
-    + All:  For every increase in one year of education, we would expect the rat of change for the population to decrease by 0.0022489 if all other variables in the model remain the same.   
-    + Brazil: For every increase in one year of education, we would expect the rate of change of the for the population to decrease by 0.0024205 if all other variables in the model remain the same.  
-    + India: For every increase in one year of education, we would expect the rate of change of the for the population to decrease by 0.0015234 if all other variables in the model remain the same.   
-    + Japan:For every increase in one year of education, we would expect the rate of change of the for the population to decrease by 0.0038341 if all other variables in the model remain the same.   
-    + Mexico: For every increase in one year of education, we would expect the rate of change of the for the population to decrease by 0.0022801 if all other variables in the model remain the same.  
-    + South Korea: For every increase in one year of education, we would expect the rate of change of the for the population to decrease by 0.0027568 if all other variables in the model remain the same.   
+    + All:  For every increase in one year of education, we would expect the per capita rate of change for the population to decrease by 0.0022489 if all other variables in the model remain the same.   
+    + Brazil: For every increase in one year of education, we would expect the per capita rate of change of the for the population to decrease by 0.0024205 if all other variables in the model remain the same.  
+    + India: For every increase in one year of education, we would expect the per capita rate of change of the for the population to decrease by 0.0015234 if all other variables in the model remain the same.   
+    + Japan: For every increase in one year of education, we would expect the per capita rate of change of the for the population to decrease by 0.0038341 if all other variables in the model remain the same.   
+    + Mexico: For every increase in one year of education, we would expect the per capita rate of change of the for the population to decrease by 0.0022801 if all other variables in the model remain the same.  
+    + South Korea: For every increase in one year of education, we would expect the per capita rate of change of the for the population to decrease by 0.0027568 if all other variables in the model remain the same.   
     
 </p>  
   
 * Food Calories: 
-    + All: For every additional calorie consumed per person per day, we would expect the rate of change of the population to decrease by 0.0000001, all other factors remaining equal.   
-    + Brazil: For every additional calorie consumed per person per day, we would expect the rate of change of the population to decrease by 0.0000012, all other factors remaining equal.  
-    + India: For every additional calorie consumed per person per day, we would expect the rate of change of the population to decrease by 0.0000004, all other factors remaining equal.   
-    + Japan: For every additional calorie consumed per person per day, we would expect the rate of change of the population to decrease by 0.0000020, all other factors remaining equal.  
-    + Mexico: For every additional calorie consumed per person per day, we would expect the rate of change of the population to decrease by 0.0000053, all other factors remaining equal.  
-    + South Korea: For every additional calorie consumed per person per day, we would expect the rate of change of the population to decrease by 0.0000004, all other factors remaining equal.  
+    + All: For every additional calorie consumed per person per day, we would expect the per capita rate of change of the population to decrease by 0.0000001, all other factors remaining equal.   
+    + Brazil: For every additional calorie consumed per person per day, we would expect the per capita rate of change of the population to decrease by 0.0000012, all other factors remaining equal.  
+    + India: For every additional calorie consumed per person per day, we would expect the per capita rate of change of the population to decrease by 0.0000004, all other factors remaining equal.   
+    + Japan: For every additional calorie consumed per person per day, we would expect the per capita rate of change of the population to decrease by 0.0000020, all other factors remaining equal.  
+    + Mexico: For every additional calorie consumed per person per day, we would expect the per capita rate of change of the population to decrease by 0.0000053, all other factors remaining equal.  
+    + South Korea: For every additional calorie consumed per person per day, we would expect the per capita rate of change of the population to decrease by 0.0000004, all other factors remaining equal.  
 
